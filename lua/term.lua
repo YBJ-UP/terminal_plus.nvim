@@ -6,6 +6,34 @@ local state = {
 
 local api = vim.api
 
+--- Opciones para terminales no flotantes
+---@class TermOpts
+---@field split string En qué dirección se hace la separación
+---@field win integer En qué ventana aparece la terminal, si es 0 aparece debajo de la ventana activa, si es -1 aparece hasta abajo
+---@field height integer Altura de la terminal en líneas, solo se usa para terminales "fijas"
+
+--- Opciones para la ventana flotante
+---@class FloatingTermOpts
+---@field relative string
+---@field border string Opciones de borde
+---@field col? integer
+---@field row? integer
+---@field width? integer
+---@field height? integer
+
+--- Opciones de posición de las terminales flotantes, en base a estas se calculan col, row, height y width
+---@class FloatingOpts
+---@field pos 'center' | 'bottomright' | 'bottomleft' | 'topleft' | 'topright' | 'bottomcenter' | 'topcenter' Posición en la que aparecerá la terminal flotante
+---@field width number Porcentaje del ancho de la pantalla que abarcará la terminal, en decimal
+---@field height number Porcentaje de la altura de la pantalla que abarcará la terminal, en decimal
+
+---@class Options
+---@field preset? string Opciones predeterminadas para usar
+---@field close_on_leave? boolean Si la terminal debe cerrarse al perder el enfoque
+---@field floating_opts? FloatingOpts Configuración de la terminal flotante, si se usa un preset este campo se ignora
+---@field term_opts? TermOpts | FloatingTermOpts Configuración de la terminal, si se usa un preset este campo se ignora
+
+---@type Options
 local spawn_on_bottom = {
 	close_on_leave = false,
 	term_opts = {
@@ -15,6 +43,7 @@ local spawn_on_bottom = {
 	}
 }
 
+---@type Options
 local spawn_floating = {
 	close_on_leave = true,
 	floating_opts = {
@@ -28,6 +57,7 @@ local spawn_floating = {
 	}
 }
 
+---@type Options
 local default_opts = {
 	preset = "spawn_floating"
 }
@@ -36,13 +66,15 @@ local current_opts = {}
 
 local G = {}
 
+---@param pos 'center' | 'bottomright' | 'bottomleft' | 'topleft' | 'topright' | 'bottomcenter' | 'topcenter' Posición en la que aparecerá la terminal flotante
+---@return number, number
 local function get_floating_size(pos) -- pq no tiene switch el lua como me cae mal
 	local posx, posy = 0.5, 0.5
 	if pos == 'center' then
 		posx, posy = 0.5, 0.5
 	elseif pos == 'topcenter' then
 		posx, posy = 0.5, 0
-	elseif pos == 'bottocenter' then
+	elseif pos == 'bottomcenter' then
 		posx, posy = 0.5, 1.0
 	elseif pos == 'topleft' then
 		posx, posy = 0.0, 0.0
@@ -59,6 +91,8 @@ local function get_floating_size(pos) -- pq no tiene switch el lua como me cae m
 	return posx, posy
 end
 
+---@param preset string El nombre del preset a usar
+---@return Options
 local function set_config(preset)
 	if preset == "spawn_on_bottom" then
 		return spawn_on_bottom
@@ -71,6 +105,8 @@ local function set_config(preset)
 	end
 end
 
+---@param opts Options La configuración del a terminal
+---@param cmd? string El comando a ejecutar al abrir la terminal
 local function open_term(opts, cmd)
 	-- se cierra si ya está abierta y es válida, para que sea como toggle
 	if state.is_open and api.nvim_win_is_valid(state.win) then
@@ -144,6 +180,7 @@ local function open_term(opts, cmd)
 	end
 end
 
+---@param opts? Options
 local function setup_user_commands(opts)
 	if opts == nil then
 		opts = default_opts
@@ -168,10 +205,12 @@ local function setup_user_commands(opts)
 	end, { noremap = true, silent = true })
 end
 
+---@param opts Options?
 G.setup = function(opts)
 	setup_user_commands(opts)
 end
 
+---@param cmd string
 G.exec = function(cmd)
 	open_term(current_opts, cmd)
 end
