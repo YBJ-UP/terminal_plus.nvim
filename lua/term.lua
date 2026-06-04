@@ -79,6 +79,7 @@ local function open_term(opts, cmd)
 
 	if not state.buf or not api.nvim_buf_is_valid(state.buf) then
 		state.buf = api.nvim_create_buf(false, true)
+		vim.api.nvim_buf_set_keymap(state.buf, "n", "q", ":close<CR>", { noremap = true, silent = true })
 		vim.bo[state.buf].bufhidden = 'hide'
 	end
 
@@ -173,7 +174,6 @@ end
 
 G.exec = function(cmd)
 	open_term(current_opts, cmd)
-	vim.api.nvim_buf_set_keymap(state.buf, "n", "q", ":close<CR>", { noremap = true, silent = true })
 end
 
 G.new = function()
