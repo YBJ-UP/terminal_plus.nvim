@@ -12,7 +12,7 @@ local api = vim.api
 ---@field win integer En qué ventana aparece la terminal, si es 0 aparece debajo de la ventana activa, si es -1 aparece hasta abajo
 ---@field height integer Altura de la terminal en líneas, solo se usa para terminales "fijas"
 
---- Opciones para la ventana flotante
+--- Opciones para la ventana flotante, los campos opcionales se calculan según FloatingOpts
 ---@class FloatingTermOpts
 ---@field relative string
 ---@field border string Opciones de borde
@@ -29,7 +29,7 @@ local api = vim.api
 
 ---@class Options
 ---@field preset? string Opciones predeterminadas para usar
----@field close_on_leave? boolean Si la terminal debe cerrarse al perder el enfoque
+---@field close_on_leave? boolean Si la terminal debe cerrarse al perder el enfoque, si se usa un preset este campo se ignora
 ---@field floating_opts? FloatingOpts Configuración de la terminal flotante, si se usa un preset este campo se ignora
 ---@field term_opts? TermOpts | FloatingTermOpts Configuración de la terminal, si se usa un preset este campo se ignora
 
@@ -62,6 +62,7 @@ local default_opts = {
 	preset = "spawn_floating"
 }
 
+---@type Options?
 local current_opts = {}
 
 local G = {}
@@ -212,10 +213,12 @@ end
 
 ---@param cmd string
 G.exec = function(cmd)
+	assert(type(current_opts) == "Options", "Error obteniendo la configuración")
 	open_term(current_opts, cmd)
 end
 
 G.new = function()
+	assert(type(current_opts) == "Options", "Error obteniendo la configuración")
 	open_term(current_opts)
 end
 
