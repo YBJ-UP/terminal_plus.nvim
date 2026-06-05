@@ -213,12 +213,12 @@ end
 
 ---@param cmd string
 G.exec = function(cmd)
-	assert(type(current_opts) == "Options", "Error obteniendo la configuración")
+	assert(current_opts ~= nil, "Error obteniendo la configuración")
 	open_term(current_opts, cmd)
 end
 
 G.new = function()
-	assert(type(current_opts) == "Options", "Error obteniendo la configuración")
+	assert(current_opts ~= nil, "Error obteniendo la configuración")
 	open_term(current_opts)
 end
 
