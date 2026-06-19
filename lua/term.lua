@@ -48,8 +48,8 @@ local spawn_floating = {
 	close_on_leave = true,
 	floating_opts = {
 		pos = 'center',
-		width = 0.6,
-		height = 0.5
+		width = 0.8,
+		height = 0.6
 	},
 	term_opts = {
 		relative = 'editor',
